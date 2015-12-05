@@ -7,3 +7,6 @@ I made a simple perl script to geocode locations via GMaps and store another CSV
 
 ### First step
 I decided not to use any database for this exersize, because whole dataset perfectly fits in memory, far that I've built data structure and implemented a method to import from two-dimensional array (CSV).
+
+### Autocomplete
+For autocomplete I chose radix-tree data structure and implementation from [Armon Dadgar](github.com/armon/go-radix)

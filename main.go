@@ -21,7 +21,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	log.Printf("%+v\n", len(records))
+	// log.Printf("%+v\n", len(records))
 	database := new(db)
 	database.importArray(records)
 }
