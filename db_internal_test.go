@@ -113,7 +113,7 @@ func TestImportPlace(t *testing.T) {
 	if !ok {
 		t.Error("Database does not contain required place")
 	}
-	if v.latitude != 1.54 || v.longitude != -10.152 {
+	if v.Latitude != 1.54 || v.Longitude != -10.152 {
 		t.Error("Place has incorrect coordinates")
 	}
 }
@@ -163,13 +163,13 @@ func TestImportMovieWithSingleLocation(t *testing.T) {
 	if !ok {
 		t.Error("Database does not contain required movie")
 	}
-	if m.year != 2000 {
+	if m.Year != 2000 {
 		t.Error("Year transformed incorrectly")
 	}
-	if len(m.places) != 1 {
+	if len(m.Places) != 1 {
 		t.Error("Database does not contain required place")
 	}
-	if m.places[0].name != "Somewhere" {
+	if m.Places[0].Name != "Somewhere" {
 		t.Error("Location name imported incorrectly")
 	}
 }
@@ -187,16 +187,16 @@ func TestImportMovieWithMultipleLocations(t *testing.T) {
 	if !ok {
 		t.Error("Database does not contain required movie")
 	}
-	if m.year != 2000 {
+	if m.Year != 2000 {
 		t.Error("Year transformed incorrectly")
 	}
-	if len(m.places) != 2 {
+	if len(m.Places) != 2 {
 		t.Error("Database does not contain required place")
 	}
-	if m.places[0].name != "Somewhere" {
+	if m.Places[0].Name != "Somewhere" {
 		t.Error("Location name imported incorrectly")
 	}
-	if m.places[1].name != "Somewhere2" {
+	if m.Places[1].Name != "Somewhere2" {
 		t.Error("Location name imported incorrectly")
 	}
 }
@@ -211,11 +211,11 @@ func TestImportMoviesWithMultipleLocations(t *testing.T) {
 		t.Error("Database contains incorrect number of places")
 	}
 	m, _ := database.movies["TheMovie"]
-	if len(m.places) != 2 {
+	if len(m.Places) != 2 {
 		t.Error("Database does not contain required place")
 	}
 	m, _ = database.movies["TheMovie2"]
-	if len(m.places) != 1 {
+	if len(m.Places) != 1 {
 		t.Error("Database does not contain required place")
 	}
 }
@@ -230,11 +230,11 @@ func TestImportMoviesWithSingleLocation(t *testing.T) {
 		t.Error("Database contains incorrect number of places")
 	}
 	m, _ := database.movies["TheMovie"]
-	if len(m.places) != 1 {
+	if len(m.Places) != 1 {
 		t.Error("Database does not contain required place")
 	}
 	m, _ = database.movies["TheMovie2"]
-	if len(m.places) != 1 {
+	if len(m.Places) != 1 {
 		t.Error("Database does not contain required place")
 	}
 }
@@ -262,18 +262,18 @@ func TestImportedLinks(t *testing.T) {
 
 	database.createLinks()
 
-	if len(database.persons["TheGuy"].movies.list) != 1 {
+	if len(database.persons["TheGuy"].Movies.List) != 1 {
 		t.Error("Incorrect number of movies for person")
 	}
-	if len(database.persons["TheDude"].movies.list) != 2 {
+	if len(database.persons["TheDude"].Movies.List) != 2 {
 		t.Error("Incorrect number of movies for person")
 	}
 
-	if len(database.companies["TheDistributor"].movies.list) != 1 {
+	if len(database.companies["TheDistributor"].Movies.List) != 1 {
 		t.Error("Incorrect number of movies for company")
 	}
 
-	if len(database.places["Somewhere"].movies.list) != 2 {
+	if len(database.places["Somewhere"].Movies.List) != 2 {
 		t.Error("Incorrect number of movies for place")
 	}
 

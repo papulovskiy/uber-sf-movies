@@ -12,88 +12,88 @@ func getNextId() int {
 	return i
 }
 
-type movie struct {
-	id          int
-	title       string
-	year        int
-	production  *company
-	distributor *company
-	places      []*place
-	director    *person
-	writer      *person
-	actors      []*person
+type Movie struct {
+	Id          int
+	Title       string
+	Year        int
+	Production  *Company
+	Distributor *Company
+	Places      []*Place
+	Director    *Person
+	Writer      *Person
+	Actors      []*Person
 }
 
-func (m *movie) addPlace(place *place) {
-	m.places = append(m.places, place)
+func (m *Movie) addPlace(place *Place) {
+	m.Places = append(m.Places, place)
 }
 
-func (m *movie) addActor(actor *person) {
-	m.actors = append(m.actors, actor)
+func (m *Movie) addActor(actor *Person) {
+	m.Actors = append(m.Actors, actor)
 }
 
-type movies struct {
-	list []*movie
+type Movies struct {
+	List []*Movie
 }
 
-func (m *movies) link(movie *movie) {
-	m.list = append(m.list, movie)
+func (m *Movies) link(movie *Movie) {
+	m.List = append(m.List, movie)
 }
 
-type person struct {
-	id     int
-	name   string
-	movies movies
+type Person struct {
+	Id     int
+	Name   string
+	Movies Movies
 }
 
-type company struct {
-	id     int
-	name   string
-	movies movies
+type Company struct {
+	Id     int
+	Name   string
+	Movies Movies
 }
 
-type place struct {
-	id        int
-	name      string
-	latitude  float64
-	longitude float64
-	movies    movies
+type Place struct {
+	Id        int     `json:"id"`
+	Name      string  `json:"name"`
+	Latitude  float64 `json:"lat"`
+	Longitude float64 `json:"lon"`
+	Movies    Movies  `json:"-"`
 }
 
 type db struct {
-	movies    map[string]*movie
-	companies map[string]*company
-	persons   map[string]*person
-	places    map[string]*place
+	movies    map[string]*Movie
+	companies map[string]*Company
+	persons   map[string]*Person
+	places    map[string]*Place
 }
 
 func (d *db) init() {
-	d.movies = make(map[string]*movie)
-	d.companies = make(map[string]*company)
-	d.persons = make(map[string]*person)
-	d.places = make(map[string]*place)
+	d.movies = make(map[string]*Movie)
+	d.companies = make(map[string]*Company)
+	d.persons = make(map[string]*Person)
+	d.places = make(map[string]*Place)
 }
 
-func (d *db) createPlace(name string, latitude float64, longitude float64) *place {
+func (d *db) createPlace(name string, latitude float64, longitude float64) *Place {
 	_, ok := d.places[name]
 	if !ok {
-		d.places[name] = &place{id: getNextId(), name: name, latitude: latitude, longitude: longitude}
+		d.places[name] = &Place{Id: getNextId(), Name: name, Latitude: latitude, Longitude: longitude}
 	}
 	return d.places[name]
 }
 
-func (d *db) createCompany(name string) *company {
+func (d *db) createCompany(name string) *Company {
 	_, ok := d.companies[name]
 	if !ok {
-		d.companies[name] = &company{id: getNextId(), name: name}
+		d.companies[name] = &Company{Id: getNextId(), Name: name}
 	}
 	return d.companies[name]
 }
 
-func (d *db) createPerson(name string) *person {
+func (d *db) createPerson(name string) *Person {
 	_, ok := d.persons[name]
 	if !ok {
-		d.persons[name] = &person{id: getNextId(), name: name}
+		d.persons[name] = &Person{Id: getNextId(), Name: name}
 	}
 	return d.persons[name]
 }
@@ -114,9 +114,9 @@ func (d *db) importArray(array [][]string) {
 	for i := 1; i < len(array); i++ {
 		row := array[i]
 
-		var director, writer, actor1, actor2, actor3 *person
-		var production, distributor *company
-		var location *place
+		var director, writer, actor1, actor2, actor3 *Person
+		var production, distributor *Company
+		var location *Place
 
 		// create place
 		if ref["Locations"] >= 0 && ref["latitude"] >= 0 && ref["longitude"] >= 0 &&
@@ -163,14 +163,14 @@ func (d *db) importArray(array [][]string) {
 			if ref["Year"] >= 0 {
 				year, _ = strconv.ParseInt(row[ref["Year"]], 10, 32)
 			}
-			d.movies[row[ref["Title"]]] = &movie{
-				id:          getNextId(),
-				title:       row[ref["Title"]],
-				year:        int(year),
-				production:  production,
-				distributor: distributor,
-				director:    director,
-				writer:      writer,
+			d.movies[row[ref["Title"]]] = &Movie{
+				Id:          getNextId(),
+				Title:       row[ref["Title"]],
+				Year:        int(year),
+				Production:  production,
+				Distributor: distributor,
+				Director:    director,
+				Writer:      writer,
 			}
 			m = d.movies[row[ref["Title"]]]
 		}
@@ -191,23 +191,23 @@ func (d *db) importArray(array [][]string) {
 
 func (d *db) createLinks() {
 	for _, m := range d.movies {
-		if m.director != nil {
-			m.director.movies.link(m)
+		if m.Director != nil {
+			m.Director.Movies.link(m)
 		}
-		if m.writer != nil {
-			m.writer.movies.link(m)
+		if m.Writer != nil {
+			m.Writer.Movies.link(m)
 		}
-		if m.production != nil {
-			m.production.movies.link(m)
+		if m.Production != nil {
+			m.Production.Movies.link(m)
 		}
-		if m.distributor != nil {
-			m.distributor.movies.link(m)
+		if m.Distributor != nil {
+			m.Distributor.Movies.link(m)
 		}
-		for _, p := range m.places {
-			p.movies.link(m)
+		for _, p := range m.Places {
+			p.Movies.link(m)
 		}
-		for _, a := range m.actors {
-			a.movies.link(m)
+		for _, a := range m.Actors {
+			a.Movies.link(m)
 		}
 	}
 }

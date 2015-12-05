@@ -32,22 +32,22 @@ func (auto *autocomplete) generateTree(d *db) {
 
 	// Add movies
 	for _, movie := range auto.d.movies {
-		auto.r.Insert(movie.title, &entity{label: movie.title, object: TYPE_MOVIE})
+		auto.r.Insert(movie.Title, &entity{label: movie.Title, object: TYPE_MOVIE})
 	}
 
 	// Add companies
 	for _, company := range auto.d.companies {
-		auto.r.Insert(company.name, &entity{label: company.name, object: TYPE_COMPANY})
+		auto.r.Insert(company.Name, &entity{label: company.Name, object: TYPE_COMPANY})
 	}
 
 	// Add places
 	for _, place := range auto.d.places {
-		auto.r.Insert(place.name, &entity{label: place.name, object: TYPE_PLACE})
+		auto.r.Insert(place.Name, &entity{label: place.Name, object: TYPE_PLACE})
 	}
 
 	// Add persons
 	for _, person := range auto.d.persons {
-		auto.r.Insert(person.name, &entity{label: person.name, object: TYPE_PERSON})
+		auto.r.Insert(person.Name, &entity{label: person.Name, object: TYPE_PERSON})
 	}
 }
 
