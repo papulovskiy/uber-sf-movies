@@ -1,3 +1,46 @@
-h1 {
-    color: #0f0;
+html, body {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+}
+
+#map {
+    width: 100%;
+    height: 100%;
+}
+
+#info {
+    position: absolute;
+    top: 0;
+    left: 0;
+    padding: 10px;
+
+    width: 100%;
+    height: auto;
+
+    background: rgba(0,0,0,0.5);
+    color: #fff;
+
+    -webkit-column-count: 2; /* Chrome, Safari, Opera */
+    -moz-column-count: 2; /* Firefox */
+    column-count: 2;
+}
+
+.header h1 {
+    margin: 0;
+}
+
+div.search {
+    text-align: right;
+    padding-right: 40px;
+}
+
+div.search input {
+    font-size: 20px;
+    width: 300px;
+}
+
+
+.leaflet-top {
+    margin-top: 60px;
 }
