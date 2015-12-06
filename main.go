@@ -37,29 +37,78 @@ func main() {
 	api := rest.NewApi()
 	api.Use(rest.DefaultDevStack...)
 	router, err := rest.MakeRouter(
-		// rest.Get("/", index),
-		rest.Get("/places", getAllPlaces),
-		// rest.Get("/places/by_movie/:id", getPlacesByMovie),
-		// rest.Get("/places/by_company/:id", getPlacesByCompany),
-		// rest.Get("/places/by_person/:id", getPlacesByPerson),
+		rest.Get("/places", func(w rest.ResponseWriter, r *rest.Request) {
+			encodePlaces(w, r, database.allPlaces)
+		}),
+		rest.Get("/places/by_movie/:id", func(w rest.ResponseWriter, r *rest.Request) {
+			m, ok := database.byIdMovies[r.PathParam("id")]
+			if ok {
+				encodePlaces(w, r, m.Places)
+			} else {
+				rest.Error(w, "Not Found", http.StatusNotFound)
+			}
+		}),
+		rest.Get("/places/by_company/:id", func(w rest.ResponseWriter, r *rest.Request) {
+			c, ok := database.byIdCompanies[r.PathParam("id")]
+			if ok {
+				places := make([]*Place, 0)
+				for _, m := range c.Movies.List {
+					for _, p := range m.Places {
+						places = append(places, p)
+					}
+				}
+				encodePlaces(w, r, places)
+			} else {
+				rest.Error(w, "Not Found", http.StatusNotFound)
+			}
+		}),
+		rest.Get("/places/by_person/:id", func(w rest.ResponseWriter, r *rest.Request) {
+			p, ok := database.byIdPersons[r.PathParam("id")]
+			if ok {
+				places := make([]*Place, 0)
+				for _, m := range p.Movies.List {
+					for _, place := range m.Places {
+						places = append(places, place)
+					}
+				}
+				encodePlaces(w, r, places)
+			} else {
+				rest.Error(w, "Not Found", http.StatusNotFound)
+			}
+		}),
+
+		rest.Get("/movies", func(w rest.ResponseWriter, r *rest.Request) {
+			encodeList(w, r, database.allMovies)
+		}),
+		rest.Get("/persons", func(w rest.ResponseWriter, r *rest.Request) {
+			encodeList(w, r, database.allPersons)
+		}),
+		rest.Get("/companies", func(w rest.ResponseWriter, r *rest.Request) {
+			encodeList(w, r, database.allCompanies)
+		}),
 	)
 	if err != nil {
 		log.Fatal(err)
 	}
 	api.SetApp(router)
+
 	http.Handle("/api/", http.StripPrefix("/api", api.MakeHandler()))
 	http.Handle("/", http.FileServer(http.Dir("./static/")))
 
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }
 
-func getAllPlaces(w rest.ResponseWriter, r *rest.Request) {
+func encodePlaces(w rest.ResponseWriter, r *rest.Request, places []*Place) {
 	fc := geojson.NewFeatureCollection(make([]*geojson.Feature, 0))
 	// TODO: fix to avoid copying on every request
-	for _, p := range database.places {
+	for _, p := range places {
 		properties := make(map[string]interface{})
 		properties["name"] = p.Name
 		fc.AddFeatures(geojson.NewFeature(geojson.NewPoint(geojson.Coordinate{geojson.CoordType(p.Latitude), geojson.CoordType(p.Longitude)}), properties, p.Id))
 	}
 	w.WriteJson(&fc)
+}
+
+func encodeList(w rest.ResponseWriter, r *rest.Request, list interface{}) {
+	w.WriteJson(&list)
 }
