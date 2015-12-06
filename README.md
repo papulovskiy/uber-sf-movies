@@ -13,3 +13,18 @@ For autocomplete I chose radix-tree data structure and implementation from [Armo
 
 ### List of points
 I'd prefer to stick to standards, that's why I chose GeoJSON as a format for geodata that will be shown on the map. I used nice [implementation of GeoJSON](https://github.com/kpawlik/geojson) fo Go. 
+
+### Map
+The map is build with Leaflet and some jQuery.
+
+## Credits
+### Backend part
+[Go-Json-Rest](https://github.com/ant0ine/go-json-rest/rest) - Go library for making JSON REST API.
+[GEOJSON](https://github.com/kpawlik/geojson) -  Go package to manipulate GeoJSON data, just to avoid manual JSON marshalling.
+[go-radix](https://github.com/armon/go-radix) - Radix tree implementation in Go, for autocomplete search.
+
+### Frontend part
+[Leaflet](http://leafletjs.com/) - lightweight web map library.
+[leaflet-ajax](https://github.com/calvinmetcalf/leaflet-ajax) - GeoJSON Leaflet layer with remote data source.
+[jQuery](https://jquery.com/) for AJAX data load.
+[jQuery UI](https://jqueryui.com/) for autocomplete.
