@@ -43,6 +43,9 @@ func (auto *autocomplete) generateTree(d *db) {
 
 	auto.d = d
 
+	// TODO: as now there is byId lookups, it's not necessary to store strings (titles, names) as keys
+	// to reduce memory consumption it's better to switch to IDs, but later
+
 	// Add movies
 	for _, movie := range auto.d.movies {
 		auto.r.Insert(filterString(movie.Title), &entity{label: movie.Title, object: TYPE_MOVIE})

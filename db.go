@@ -12,16 +12,17 @@ func getNextId() int {
 	return i
 }
 
+// Movie and related methods
 type Movie struct {
-	Id          int
-	Title       string
-	Year        int
-	Production  *Company
-	Distributor *Company
-	Places      []*Place
-	Director    *Person
-	Writer      *Person
-	Actors      []*Person
+	Id          int       `json:"id"`
+	Title       string    `json:"title"`
+	Year        int       `json:"year"`
+	Production  *Company  `json:"production"`
+	Distributor *Company  `json:"distributor"`
+	Places      []*Place  `json:"-"`
+	Director    *Person   `json:"director"`
+	Writer      *Person   `json:"writer"`
+	Actors      []*Person `json:"actors"`
 
 	actorsMap map[int]bool
 	placesMap map[int]bool
@@ -41,6 +42,7 @@ func (m *Movie) addActor(actor *Person) {
 	}
 }
 
+// Special struct for movies reference from other types
 type Movies struct {
 	List []*Movie
 }
@@ -53,14 +55,14 @@ func (m *Movies) link(movie *Movie) {
 }
 
 type Person struct {
-	Id     int
-	Name   string
+	Id     int    `json:"id"`
+	Name   string `json:"name"`
 	Movies Movies `json:"-"`
 }
 
 type Company struct {
-	Id     int
-	Name   string
+	Id     int    `json:"id"`
+	Name   string `json:"name"`
 	Movies Movies `json:"-"`
 }
 
