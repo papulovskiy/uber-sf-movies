@@ -10,3 +10,6 @@ I decided not to use any database for this exersize, because whole dataset perfe
 
 ### Autocomplete
 For autocomplete I chose radix-tree data structure and implementation from [Armon Dadgar](github.com/armon/go-radix)
+
+### List of points
+I'd prefer to stick to standards, that's why I chose GeoJSON as a format for geodata that will be shown on the map. I used nice [implementation of GeoJSON](https://github.com/kpawlik/geojson) fo Go. 

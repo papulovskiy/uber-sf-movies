@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/ant0ine/go-json-rest/rest"
+	"github.com/kpawlik/geojson"
 )
 
 var database *db
@@ -53,10 +54,12 @@ func main() {
 }
 
 func getAllPlaces(w rest.ResponseWriter, r *rest.Request) {
-	places := make([]*Place, 0)
+	fc := geojson.NewFeatureCollection(make([]*geojson.Feature, 0))
 	// TODO: fix to avoid copying on every request
 	for _, p := range database.places {
-		places = append(places, p)
+		properties := make(map[string]interface{})
+		properties["name"] = p.Name
+		fc.AddFeatures(geojson.NewFeature(geojson.NewPoint(geojson.Coordinate{geojson.CoordType(p.Latitude), geojson.CoordType(p.Longitude)}), properties, p.Id))
 	}
-	w.WriteJson(&places)
+	w.WriteJson(&fc)
 }
