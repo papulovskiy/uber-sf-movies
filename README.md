@@ -20,17 +20,23 @@ The map is built with Leaflet and some jQuery, pretty simple and straightforward
 ## Credits
 ### Backend part
 [Go-Json-Rest](https://github.com/ant0ine/go-json-rest/rest) - Go library for making JSON REST API.
+
 [GEOJSON](https://github.com/kpawlik/geojson) -  Go package to manipulate GeoJSON data, just to avoid manual JSON marshalling.
+
 [go-radix](https://github.com/armon/go-radix) - Radix tree implementation in Go, for autocomplete search.
 
 ### Frontend part
 [Leaflet](http://leafletjs.com/) - lightweight web map library.
+
 [leaflet-ajax](https://github.com/calvinmetcalf/leaflet-ajax) - GeoJSON Leaflet layer with a remote data source.
+
 [jQuery](https://jquery.com/) for AJAX data load.
+
 [jQuery UI](https://jqueryui.com/) for autocomplete.
 
 ## Live demo
 https://uber.play.c17.nl/
+
 The project is running on ARM server by [Scaleway](https://www.scaleway.com/) with SSL certificate from [Let's Encrypt](https://letsencrypt.org/).
 
 Special thanks to supervisord.
