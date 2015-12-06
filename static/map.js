@@ -1,5 +1,5 @@
 (function() {
-    "use strict";
+    'use strict';
 
     var map,
         geojsonLayer;
@@ -45,23 +45,27 @@
             maxZoom: 18,
             attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, ' +
                 '<a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, ' +
-                'Imagery © <a href="http://mapbox.com">Mapbox</a>',
+                'Imagery © <a href="http://mapbox.com">Mapbox</a>, ' +
+                '<a href="https://www.scaleway.com/">Hosted on Scaleway</a>, ' +
+                'SSL by <a href="https://letsencrypt.org/">Let\'s Encrypt</a>, ' +
+                '<a href="https://github.com/papulovskiy/uber-sf-movies">Source Code</a>',
             id: 'mapbox.streets'
         }).addTo(map);
 
         var geojsonMarkerOptions = {
             radius: 6,
-            fillColor: "#ff7800",
-            color: "#ff9900",
+            fillColor: '#ff7800',
+            color: '#ff9900',
             weight: 1,
             opacity: 0.9,
             fillOpacity: 0.7
         };
 
-        geojsonLayer = new L.GeoJSON.AJAX("/api/places", {
+        // Initial map shows all known places
+        geojsonLayer = new L.GeoJSON.AJAX('/api/places', {
             pointToLayer: function (feature, latlng) {
                 var m = L.circleMarker(latlng, geojsonMarkerOptions);
-                m.bindPopup("<div>Loading...</div>");
+                m.bindPopup('<div>Loading...</div>');
                 m.on('click', function(e) {
                     var p = e.target._popup;
                     renderPopup(p, feature.id);
@@ -77,22 +81,22 @@
     initMap();
 
 
-    $("input[name=search]").autocomplete({
+    $('input[name=search]').autocomplete({
         minLength: 2,
         source: function(request, response) {
             $.ajax({
-                type: "GET",
-                url: "/api/autocomplete",
+                type: 'GET',
+                url: '/api/autocomplete',
                 data: {
                     q: request.term
                 },
-                dataType: "json",
+                dataType: 'json',
                 success: function(msg){
                     var result = [];
                    for (var i in msg) {
                         var item = msg[i];
                         result.push({
-                            label: item.type + ": " + (item.object.title ? item.object.title : item.object.name),
+                            label: item.type + ': ' + (item.object.title ? item.object.title : item.object.name),
                             value: (item.object.title ? item.object.title : item.object.name),
                             type: item.type,
                             id: item.object.id
@@ -111,14 +115,14 @@
     $("html").on('click', 'a.movie', function(e) {
         e.stopPropagation();
         var a = e.target;
-        $("input[name=search]").val($(a).data('title'))
+        $('input[name=search]').val($(a).data('title'))
         updateGeoJsonLayer(makeUrl('movie', $(a).data('id')));
     });
 
     // Cleanup search on header click
-    $("h1 a").on('click', function(e) {
+    $('h1 a').on('click', function(e) {
         e.stopPropagation();
-        $("input[name=search]").val('')
+        $('input[name=search]').val('')
         updateGeoJsonLayer(makeUrl());
     });
 })();
