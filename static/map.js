@@ -15,6 +15,29 @@
         geojsonLayer.refresh(url);
     }
 
+    function renderPopup(popup, place_id) {
+        $.get('/api/place/' + place_id).done(function(data) {
+            var html = '';
+            if(data.name) {
+                html += '<h3>' + data.name + '</h3>';
+            }
+            if(data.movies.List) {
+                data.movies.List.forEach(function(i) {
+                    html += '<div class="movie">Movie: ';
+                    html += '<a href="#" class="movie" data-type="movie" data-id="' + i.id + '" data-title="' + i.title + '">';
+                    html += i.title;
+                    if(i.year > 0) {
+                        html += ' (' + i.year + ')';
+                    }
+                    html += '</a></div>';
+                });
+            }
+            popup.setContent(html);
+            popup.update();
+        });
+
+    }
+
     function initMap() {
         map = L.map('map').setView([37.77, -122.42], 13);
 
@@ -37,28 +60,21 @@
 
         geojsonLayer = new L.GeoJSON.AJAX("/api/places", {
             pointToLayer: function (feature, latlng) {
-                return L.circleMarker(latlng, geojsonMarkerOptions);
+                var m = L.circleMarker(latlng, geojsonMarkerOptions);
+                m.bindPopup("<div>Loading...</div>");
+                m.on('click', function(e) {
+                    var p = e.target._popup;
+                    renderPopup(p, feature.id);
+                });
+                return m;
             }
         });
 
         geojsonLayer.addTo(map);
 
-        // function popUp(f,l){
-        //     var out = [];
-        //     if (f.properties){
-        //         for(key in f.properties){
-        //             out.push(key+": "+f.properties[key]);
-        //         }
-        //         l.bindPopup(out.join("<br />"));
-        //     }
-        // }
-        // var jsonTest = new L.GeoJSON.AJAX(["/api/places"],{onEachFeature:popUp}).addTo(map);
-
-
     }
 
     initMap();
-
 
 
     $("input[name=search]").autocomplete({
@@ -73,7 +89,6 @@
                 dataType: "json",
                 success: function(msg){
                     var result = [];
-                   console.log(msg);
                    for (var i in msg) {
                         var item = msg[i];
                         result.push({
@@ -88,18 +103,22 @@
             });
         },
         select: function(event, ui) {
-            console.log(event, ui, makeUrl(ui.item.type, ui.item.id));
             updateGeoJsonLayer(makeUrl(ui.item.type, ui.item.id));
         }
     });
 
-        // function onMapClick(e) {
-        //     popup
-        //         .setLatLng(e.latlng)
-        //         .setContent("You clicked the map at " + e.latlng.toString())
-        //         .openOn(map);
-        // }
+    // Switch map to places by movie
+    $("html").on('click', 'a.movie', function(e) {
+        e.stopPropagation();
+        var a = e.target;
+        $("input[name=search]").val($(a).data('title'))
+        updateGeoJsonLayer(makeUrl('movie', $(a).data('id')));
+    });
 
-        // map.on('click', onMapClick);
-
+    // Cleanup search on header click
+    $("h1 a").on('click', function(e) {
+        e.stopPropagation();
+        $("input[name=search]").val('')
+        updateGeoJsonLayer(makeUrl());
+    });
 })();

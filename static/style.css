@@ -30,6 +30,10 @@ html, body {
     margin: 0;
 }
 
+.header h1 a {
+    color: #fff;
+}
+
 div.search {
     text-align: right;
     padding-right: 40px;
