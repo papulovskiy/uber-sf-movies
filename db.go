@@ -22,14 +22,23 @@ type Movie struct {
 	Director    *Person
 	Writer      *Person
 	Actors      []*Person
+
+	actorsMap map[int]bool
+	placesMap map[int]bool
 }
 
 func (m *Movie) addPlace(place *Place) {
-	m.Places = append(m.Places, place)
+	if place != nil && m.placesMap[place.Id] == false {
+		m.placesMap[place.Id] = true
+		m.Places = append(m.Places, place)
+	}
 }
 
 func (m *Movie) addActor(actor *Person) {
-	m.Actors = append(m.Actors, actor)
+	if actor != nil && m.actorsMap[actor.Id] == false {
+		m.actorsMap[actor.Id] = true
+		m.Actors = append(m.Actors, actor)
+	}
 }
 
 type Movies struct {
@@ -37,19 +46,22 @@ type Movies struct {
 }
 
 func (m *Movies) link(movie *Movie) {
+	if m.List == nil {
+		m.List = make([]*Movie, 0)
+	}
 	m.List = append(m.List, movie)
 }
 
 type Person struct {
 	Id     int
 	Name   string
-	Movies Movies
+	Movies Movies `json:"-"`
 }
 
 type Company struct {
 	Id     int
 	Name   string
-	Movies Movies
+	Movies Movies `json:"-"`
 }
 
 type Place struct {
@@ -65,6 +77,16 @@ type db struct {
 	companies map[string]*Company
 	persons   map[string]*Person
 	places    map[string]*Place
+
+	allPlaces    []*Place
+	allMovies    []*Movie
+	allCompanies []*Company
+	allPersons   []*Person
+
+	byIdPlaces    map[string]*Place
+	byIdMovies    map[string]*Movie
+	byIdCompanies map[string]*Company
+	byIdPersons   map[string]*Person
 }
 
 func (d *db) init() {
@@ -72,6 +94,38 @@ func (d *db) init() {
 	d.companies = make(map[string]*Company)
 	d.persons = make(map[string]*Person)
 	d.places = make(map[string]*Place)
+
+	d.byIdMovies = make(map[string]*Movie)
+	d.byIdCompanies = make(map[string]*Company)
+	d.byIdPersons = make(map[string]*Person)
+	d.byIdPlaces = make(map[string]*Place)
+}
+
+// Fill various lookups
+func (d *db) updateLists() {
+	d.allPlaces = make([]*Place, 0)
+	for _, p := range d.places {
+		d.allPlaces = append(d.allPlaces, p)
+		d.byIdPlaces[strconv.Itoa(p.Id)] = p
+	}
+
+	d.allMovies = make([]*Movie, 0)
+	for _, m := range d.movies {
+		d.allMovies = append(d.allMovies, m)
+		d.byIdMovies[strconv.Itoa(m.Id)] = m
+	}
+
+	d.allCompanies = make([]*Company, 0)
+	for _, c := range d.companies {
+		d.allCompanies = append(d.allCompanies, c)
+		d.byIdCompanies[strconv.Itoa(c.Id)] = c
+	}
+
+	d.allPersons = make([]*Person, 0)
+	for _, p := range d.persons {
+		d.allPersons = append(d.allPersons, p)
+		d.byIdPersons[strconv.Itoa(p.Id)] = p
+	}
 }
 
 func (d *db) createPlace(name string, latitude float64, longitude float64) *Place {
@@ -171,6 +225,9 @@ func (d *db) importArray(array [][]string) {
 				Distributor: distributor,
 				Director:    director,
 				Writer:      writer,
+
+				actorsMap: make(map[int]bool),
+				placesMap: make(map[int]bool),
 			}
 			m = d.movies[row[ref["Title"]]]
 		}
@@ -186,6 +243,9 @@ func (d *db) importArray(array [][]string) {
 		}
 
 	}
+
+	d.createLinks()
+	d.updateLists()
 	// log.Printf("Places: %+v\n", d.companies)
 }
 
@@ -204,7 +264,10 @@ func (d *db) createLinks() {
 			m.Distributor.Movies.link(m)
 		}
 		for _, p := range m.Places {
-			p.Movies.link(m)
+			// TODO: find out why the empty place is possible
+			if p != nil {
+				p.Movies.link(m)
+			}
 		}
 		for _, a := range m.Actors {
 			a.Movies.link(m)
