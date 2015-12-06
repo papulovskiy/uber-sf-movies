@@ -97,13 +97,13 @@ func main() {
 		}),
 
 		// Autocomplete
-		rest.Get("/autocomplete/:q", func(w rest.ResponseWriter, r *rest.Request) {
-			q := strings.ToLower(r.PathParam("q"))
+		rest.Get("/autocomplete", func(w rest.ResponseWriter, r *rest.Request) {
+			q := strings.ToLower(r.URL.Query().Get("q"))
 			// Do we want to handle UTF here?
-			if len(q) > 2 {
+			if len(q) > 1 {
 				encodeList(w, r, auto.searchObjects(q))
 			} else {
-				rest.Error(w, "Minimum query length is 3 characters", http.StatusBadRequest)
+				rest.Error(w, "Minimum query length is 2 characters", http.StatusBadRequest)
 			}
 
 		}),
@@ -126,7 +126,7 @@ func encodePlaces(w rest.ResponseWriter, r *rest.Request, places []*Place) {
 	for _, p := range places {
 		properties := make(map[string]interface{})
 		properties["name"] = p.Name
-		fc.AddFeatures(geojson.NewFeature(geojson.NewPoint(geojson.Coordinate{geojson.CoordType(p.Latitude), geojson.CoordType(p.Longitude)}), properties, p.Id))
+		fc.AddFeatures(geojson.NewFeature(geojson.NewPoint(geojson.Coordinate{geojson.CoordType(p.Longitude), geojson.CoordType(p.Latitude)}), properties, p.Id))
 	}
 	w.WriteJson(&fc)
 }
