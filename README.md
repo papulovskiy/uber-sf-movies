@@ -28,3 +28,9 @@ The map is build with Leaflet and some jQuery.
 [leaflet-ajax](https://github.com/calvinmetcalf/leaflet-ajax) - GeoJSON Leaflet layer with remote data source.
 [jQuery](https://jquery.com/) for AJAX data load.
 [jQuery UI](https://jqueryui.com/) for autocomplete.
+
+## Live demo
+https://uber.play.c17.nl/
+The project is running on ARM server by [Scaleway](https://www.scaleway.com/) with SSL certificate from [Let's Encrypt](https://letsencrypt.org/).
+
+Special thanks to supervisord.
