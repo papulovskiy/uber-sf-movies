@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/csv"
+	"flag"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -12,6 +13,18 @@ import (
 )
 
 var database *db
+
+var (
+	port     string
+	certFile string
+	keyFile  string
+)
+
+func init() {
+	flag.StringVar(&port, "port", "8080", "Port to listen for HTTP")
+	flag.StringVar(&certFile, "cert", "", "Path to certificate file")
+	flag.StringVar(&keyFile, "key", "", "Path to key file")
+}
 
 func csv2database() *db {
 	list, err := ioutil.ReadFile("./data/list.csv")
@@ -31,7 +44,7 @@ func csv2database() *db {
 }
 
 func main() {
-	log.Println("Hello")
+	flag.Parse()
 
 	// Building database
 	database = csv2database()
@@ -126,7 +139,11 @@ func main() {
 	http.Handle("/api/", http.StripPrefix("/api", api.MakeHandler()))
 	http.Handle("/", http.FileServer(http.Dir("./static/")))
 
-	log.Fatal(http.ListenAndServe(":8080", nil))
+	if certFile != "" && keyFile != "" {
+		log.Fatal(http.ListenAndServeTLS(":"+port, certFile, keyFile, nil))
+	} else {
+		log.Fatal(http.ListenAndServe(":"+port, nil))
+	}
 }
 
 // Places to GeoJSON conversion
