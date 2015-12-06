@@ -1,8 +1,11 @@
 package main
 
-import "github.com/armon/go-radix"
+import (
+	"regexp"
+	"strings"
 
-// import "fmt"
+	"github.com/armon/go-radix"
+)
 
 const (
 	TYPE_MOVIE   = iota
@@ -16,6 +19,11 @@ type entity struct {
 	object int
 }
 
+type Result struct {
+	Type   string      `json:"type"`
+	Object interface{} `json:"object"`
+}
+
 type autocomplete struct {
 	d *db
 	r *radix.Tree
@@ -25,6 +33,11 @@ func (auto *autocomplete) init() {
 	auto.r = radix.New()
 }
 
+func filterString(s string) string {
+	re := regexp.MustCompile("(\\W+)")
+	return re.ReplaceAllString(strings.ToLower(s), "")
+}
+
 func (auto *autocomplete) generateTree(d *db) {
 	auto.init()
 
@@ -32,35 +45,35 @@ func (auto *autocomplete) generateTree(d *db) {
 
 	// Add movies
 	for _, movie := range auto.d.movies {
-		auto.r.Insert(movie.Title, &entity{label: movie.Title, object: TYPE_MOVIE})
+		auto.r.Insert(filterString(movie.Title), &entity{label: movie.Title, object: TYPE_MOVIE})
 	}
 
 	// Add companies
 	for _, company := range auto.d.companies {
-		auto.r.Insert(company.Name, &entity{label: company.Name, object: TYPE_COMPANY})
+		auto.r.Insert(filterString(company.Name), &entity{label: company.Name, object: TYPE_COMPANY})
 	}
 
 	// Add places
 	for _, place := range auto.d.places {
-		auto.r.Insert(place.Name, &entity{label: place.Name, object: TYPE_PLACE})
+		auto.r.Insert(filterString(place.Name), &entity{label: place.Name, object: TYPE_PLACE})
 	}
 
 	// Add persons
 	for _, person := range auto.d.persons {
-		auto.r.Insert(person.Name, &entity{label: person.Name, object: TYPE_PERSON})
+		auto.r.Insert(filterString(person.Name), &entity{label: person.Name, object: TYPE_PERSON})
 	}
 }
 
 func (auto *autocomplete) entity2data(e entity) interface{} {
 	switch e.object {
 	case TYPE_MOVIE:
-		return auto.d.movies[e.label]
+		return &Result{Type: "movie", Object: auto.d.movies[e.label]}
 	case TYPE_COMPANY:
-		return auto.d.companies[e.label]
+		return &Result{Type: "company", Object: auto.d.companies[e.label]}
 	case TYPE_PLACE:
-		return auto.d.places[e.label]
+		return &Result{Type: "place", Object: auto.d.places[e.label]}
 	case TYPE_PERSON:
-		return auto.d.persons[e.label]
+		return &Result{Type: "person", Object: auto.d.persons[e.label]}
 	}
 	return nil
 }
@@ -71,13 +84,10 @@ func (auto *autocomplete) search(query string) []entity {
 	fn := func(s string, v interface{}) bool {
 		e := entity(*v.(*entity))
 		result = append(result, e)
-		// } else {
-		// 	fmt.Printf("Assertion error: %+v %+v\n", v, e)
-		// }
 		return false
 	}
 
-	auto.r.WalkPrefix(query, fn)
+	auto.r.WalkPrefix(filterString(query), fn)
 	return result
 }
 

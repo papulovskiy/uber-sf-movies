@@ -32,3 +32,5 @@ func TestSearch(t *testing.T) {
 		t.Error("Two results expected")
 	}
 }
+
+// TODO: add tests for strings with spaces and special characters, also uppercase
