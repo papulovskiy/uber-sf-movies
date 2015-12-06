@@ -71,7 +71,7 @@ type Place struct {
 	Name      string  `json:"name"`
 	Latitude  float64 `json:"lat"`
 	Longitude float64 `json:"lon"`
-	Movies    Movies  `json:"-"`
+	Movies    Movies  `json:"movies"`
 }
 
 type db struct {

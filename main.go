@@ -42,6 +42,16 @@ func main() {
 	api := rest.NewApi()
 	api.Use(rest.DefaultDevStack...)
 	router, err := rest.MakeRouter(
+		// Information about place for popup
+		rest.Get("/place/:id", func(w rest.ResponseWriter, r *rest.Request) {
+			p, ok := database.byIdPlaces[r.PathParam("id")]
+			if ok {
+				w.WriteJson(&p)
+			} else {
+				rest.Error(w, "Not Found", http.StatusNotFound)
+			}
+		}),
+
 		// All places
 		rest.Get("/places", func(w rest.ResponseWriter, r *rest.Request) {
 			encodePlaces(w, r, database.allPlaces)
