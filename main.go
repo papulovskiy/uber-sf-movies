@@ -32,14 +32,22 @@ func csv2database() *db {
 
 func main() {
 	log.Println("Hello")
+
+	// Building database
 	database = csv2database()
+	// Building autocomplete lookup
+	auto := new(autocomplete)
+	auto.generateTree(database)
 
 	api := rest.NewApi()
 	api.Use(rest.DefaultDevStack...)
 	router, err := rest.MakeRouter(
+		// All places
 		rest.Get("/places", func(w rest.ResponseWriter, r *rest.Request) {
 			encodePlaces(w, r, database.allPlaces)
 		}),
+
+		// Places by specific object
 		rest.Get("/places/by_movie/:id", func(w rest.ResponseWriter, r *rest.Request) {
 			m, ok := database.byIdMovies[r.PathParam("id")]
 			if ok {
@@ -77,6 +85,7 @@ func main() {
 			}
 		}),
 
+		// Just lists of everything, mostly for debugging purpose
 		rest.Get("/movies", func(w rest.ResponseWriter, r *rest.Request) {
 			encodeList(w, r, database.allMovies)
 		}),
@@ -85,6 +94,18 @@ func main() {
 		}),
 		rest.Get("/companies", func(w rest.ResponseWriter, r *rest.Request) {
 			encodeList(w, r, database.allCompanies)
+		}),
+
+		// Autocomplete
+		rest.Get("/autocomplete/:q", func(w rest.ResponseWriter, r *rest.Request) {
+			q := strings.ToLower(r.PathParam("q"))
+			// Do we want to handle UTF here?
+			if len(q) > 2 {
+				encodeList(w, r, auto.searchObjects(q))
+			} else {
+				rest.Error(w, "Minimum query length is 3 characters", http.StatusBadRequest)
+			}
+
 		}),
 	)
 	if err != nil {
@@ -98,6 +119,7 @@ func main() {
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }
 
+// Places to GeoJSON conversion
 func encodePlaces(w rest.ResponseWriter, r *rest.Request, places []*Place) {
 	fc := geojson.NewFeatureCollection(make([]*geojson.Feature, 0))
 	// TODO: fix to avoid copying on every request
@@ -109,6 +131,7 @@ func encodePlaces(w rest.ResponseWriter, r *rest.Request, places []*Place) {
 	w.WriteJson(&fc)
 }
 
+// Generic output for a list
 func encodeList(w rest.ResponseWriter, r *rest.Request, list interface{}) {
 	w.WriteJson(&list)
 }
